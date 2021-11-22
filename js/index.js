@@ -1,38 +1,49 @@
-const form = document.getElementById("form");
-const list = document.getElementById("list");
-const itemLeft = document.getElementById("itemLeft");
+const form = document.querySelector(".form");
+const list = document.querySelector(".list");
+const itemLeft = document.querySelector(".itemLeft");
 
 form.addEventListener("submit", handleOnForm);
-list.addEventListener("click", handleOnClick);
 
 const todos = [];
+let id = 0;
 
 function handleOnForm(e) {
   e.preventDefault();
 
   const todo = e.target.input.value;
-  todos.push(todo);
-  appendMarkup();
+  id += 1;
+  todos.push({ id, todo });
+
+  const li = getLiElement(id, todo);
+
+  list.append(li);
+
+  itemLeft.textContent = `item left: ${todos.length}`;
 
   e.currentTarget.reset();
 }
 
 function handleOnClick(e) {
-  if (e.target.nodeName !== "BUTTON") return;
-
   const index = e.target.dataset.index;
-  todos.splice(index, 1);
-  appendMarkup();
+
+  list.innerHTML = "";
+  const filtered = todos.filter((todo) => Number(todo.id) !== Number(index));
+
+  const arrElements = filtered.map(({ id, todo }) => getLiElement(id, todo));
+
+  list.append(...arrElements);
 }
 
-function appendMarkup() {
-  const markup = todos
-    .map(
-      (todo, i) =>
-        `<li class='item'>${todo} <button id="button" type="button" data-index=${i}>del</button></li>`
-    )
-    .join("");
-  list.innerHTML = markup;
+function getLiElement(id, todo) {
+  const li = document.createElement("li");
+  li.classList.add("item");
+  li.textContent = todo;
+  const button = document.createElement("button");
+  button.textContent = "del";
+  button.dataset.index = id;
+  button.addEventListener("click", handleOnClick);
 
-  itemLeft.textContent = `item left: ${todos.length}`;
+  li.appendChild(button);
+
+  return li;
 }
