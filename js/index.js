@@ -4,7 +4,7 @@ const itemLeft = document.querySelector(".itemLeft");
 
 form.addEventListener("submit", handleOnForm);
 
-const todos = [];
+// const todos = [];
 let id = 0;
 
 function handleOnForm(e) {
@@ -12,7 +12,7 @@ function handleOnForm(e) {
 
   const todo = e.target.input.value;
   id += 1;
-  todos.push({ id, todo });
+  // todos.push({ id, todo });
 
   const li = getLiElement(id, todo);
 
@@ -30,7 +30,6 @@ function handleOnClick(e) {
 
   list.removeChild(li);
 
-  todos.splice(Number(index - 1), 1);
   changeItemLeft();
 }
 
@@ -50,5 +49,6 @@ function getLiElement(id, todo) {
 }
 
 function changeItemLeft() {
-  itemLeft.textContent = `item left: ${todos.length}`;
+  const allLiElements = document.querySelectorAll("li[data-index]");
+  itemLeft.textContent = `item left: ${allLiElements.length}`;
 }
