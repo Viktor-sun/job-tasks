@@ -18,7 +18,7 @@ function handleOnForm(e) {
 
   list.append(li);
 
-  itemLeft.textContent = `item left: ${todos.length}`;
+  changeItemLeft();
 
   e.currentTarget.reset();
 }
@@ -26,18 +26,19 @@ function handleOnForm(e) {
 function handleOnClick(e) {
   const index = e.target.dataset.index;
 
-  list.innerHTML = "";
-  const filtered = todos.filter((todo) => Number(todo.id) !== Number(index));
+  const li = document.querySelector(`li[data-index="${index}"]`);
 
-  const arrElements = filtered.map(({ id, todo }) => getLiElement(id, todo));
+  list.removeChild(li);
 
-  list.append(...arrElements);
+  todos.splice(Number(index - 1), 1);
+  changeItemLeft();
 }
 
 function getLiElement(id, todo) {
   const li = document.createElement("li");
   li.classList.add("item");
   li.textContent = todo;
+  li.dataset.index = id;
   const button = document.createElement("button");
   button.textContent = "del";
   button.dataset.index = id;
@@ -46,4 +47,8 @@ function getLiElement(id, todo) {
   li.appendChild(button);
 
   return li;
+}
+
+function changeItemLeft() {
+  itemLeft.textContent = `item left: ${todos.length}`;
 }
