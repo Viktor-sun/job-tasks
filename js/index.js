@@ -1,5 +1,6 @@
 const form = document.getElementById("form");
 const list = document.getElementById("list");
+const itemLeft = document.getElementById("itemLeft");
 
 form.addEventListener("submit", handleOnForm);
 list.addEventListener("click", handleOnClick);
@@ -32,4 +33,6 @@ function appendMarkup() {
     )
     .join("");
   list.innerHTML = markup;
+
+  itemLeft.textContent = `item left: ${todos.length}`;
 }

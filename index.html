@@ -8,13 +8,21 @@
     <title>Document</title>
   </head>
   <body>
-    <h1 class="title">todos</h1>
+    <div class="container">
+      <h1 class="title">todos</h1>
+      <span id="itemLeft" class="">item left: 0</span>
 
-    <form id="form" class="formStyle">
-      <input type="text" id="input" autocomplete="off" />
-    </form>
+      <form id="form" class="formStyle">
+        <input
+          type="text"
+          id="input"
+          autocomplete="off"
+          placeholder="Enter your text..."
+        />
+      </form>
 
-    <ul id="list" class="listStyle"></ul>
+      <ul id="list" class="listStyle"></ul>
+    </div>
 
     <script src="./js/index.js" type="module"></script>
   </body>
