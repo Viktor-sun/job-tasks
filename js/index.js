@@ -12,7 +12,11 @@ let id = 0;
   if (!oldTodos) return;
 
   oldTodos.forEach((todo) => todos.push(todo));
-  const arrElements = todos.map(({ id, todo }) => getLiElement(id, todo));
+  const arrElements = todos.map(({ id, todo, isActive }) =>
+    getLiElement(id, todo, isActive)
+  );
+
+  id = arrElements.length + 1;
 
   list.append(...arrElements);
   changeItemLeft();
@@ -22,11 +26,14 @@ function handleOnForm(e) {
   e.preventDefault();
 
   const todo = e.target.input.value;
+  if (todo === "") return;
+
   id += 1;
-  todos.push({ id, todo });
+  const isActive = false;
+  todos.push({ id, todo, isActive });
   localStorage.setItem("todos", JSON.stringify(todos));
 
-  const li = getLiElement(id, todo);
+  const li = getLiElement(id, todo, isActive);
   list.append(li);
 
   changeItemLeft();
@@ -47,16 +54,37 @@ function handleOnClick(e) {
   changeItemLeft();
 }
 
-function getLiElement(id, todo) {
+function handleOnCheckbox(e) {
+  const checkboxIndex = e.target.dataset.index;
+
+  todos.forEach((todo) => {
+    if (todo.id === Number(checkboxIndex)) {
+      todo.isActive = !todo.isActive;
+    }
+  });
+
+  localStorage.setItem("todos", JSON.stringify(todos));
+}
+
+function getLiElement(id, todo, isActive) {
   const li = document.createElement("li");
   li.classList.add("item");
   li.textContent = todo;
   li.dataset.index = id;
+
   const button = document.createElement("button");
   button.textContent = "del";
   button.dataset.index = id;
   button.addEventListener("click", handleOnClick);
 
+  const checkbox = document.createElement("input");
+  checkbox.classList.add("checkbox");
+  checkbox.setAttribute("type", "checkbox");
+  checkbox.dataset.index = id;
+  isActive && checkbox.setAttribute("checked", true);
+  checkbox.addEventListener("click", handleOnCheckbox);
+
+  li.prepend(checkbox);
   li.appendChild(button);
 
   return li;
