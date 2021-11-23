@@ -5,6 +5,8 @@ const buttonAll = document.getElementById("buttonAll");
 const butttonActive = document.getElementById("butttonActive");
 const buttonCompleted = document.getElementById("buttonCompleted");
 const buttonSelectAll = document.querySelector(".btnSelectAll");
+const buttonClear = document.querySelector(".btnClear");
+const containerBtnClear = document.querySelector(".containerBtn");
 
 form.addEventListener("submit", handleOnForm);
 buttonAll.addEventListener("click", handleOnButtonAll);
@@ -55,17 +57,17 @@ function handleOnCheckbox(e) {
 }
 
 function handleOnButtonAll() {
-  buttonAll.classList.add("active");
-  butttonActive.classList.remove("active");
-  buttonCompleted.classList.remove("active");
+  buttonAll.classList.add("activeSortButton");
+  butttonActive.classList.remove("activeSortButton");
+  buttonCompleted.classList.remove("activeSortButton");
 
   render();
 }
 
 function handleOnButtonActive() {
-  buttonAll.classList.remove("active");
-  butttonActive.classList.add("active");
-  buttonCompleted.classList.remove("active");
+  buttonAll.classList.remove("activeSortButton");
+  butttonActive.classList.add("activeSortButton");
+  buttonCompleted.classList.remove("activeSortButton");
 
   const todos = JSON.parse(localStorage.getItem("todos")) || [];
   const todosActive = todos.filter(({ completed }) => !completed);
@@ -73,9 +75,9 @@ function handleOnButtonActive() {
 }
 
 function handleOnButtonCompleted() {
-  buttonAll.classList.remove("active");
-  butttonActive.classList.remove("active");
-  buttonCompleted.classList.add("active");
+  buttonAll.classList.remove("activeSortButton");
+  butttonActive.classList.remove("activeSortButton");
+  buttonCompleted.classList.add("activeSortButton");
 
   const todos = JSON.parse(localStorage.getItem("todos")) || [];
   const todosCompleted = todos.filter(({ completed }) => completed);
@@ -99,6 +101,14 @@ function onSelectAll() {
   render();
 }
 
+function OnClearCompleted() {
+  const todos = JSON.parse(localStorage.getItem("todos")) || [];
+  const activeTodo = todos.filter((todo) => !todo.completed);
+  localStorage.setItem("todos", JSON.stringify(activeTodo));
+
+  render();
+}
+
 function render(filteredTodos) {
   const todos =
     filteredTodos || JSON.parse(localStorage.getItem("todos")) || [];
@@ -109,6 +119,17 @@ function render(filteredTodos) {
   );
   list.append(...arrElements);
   changeItemLeft();
+
+  const hasCompletedTodo = todos.some((todo) => todo.completed);
+  const btnClear = createButton();
+  if (hasCompletedTodo) {
+    const hasBtn = containerBtnClear.querySelector(".btnClear");
+    if (hasBtn) return;
+
+    containerBtnClear.insertAdjacentElement("beforeend", btnClear);
+  } else {
+    containerBtnClear.innerHTML = "";
+  }
 }
 
 function createLiElement(id, todo, completed) {
@@ -133,6 +154,14 @@ function createLiElement(id, todo, completed) {
   li.appendChild(button);
 
   return li;
+}
+
+function createButton() {
+  const button = document.createElement("button");
+  button.textContent = "Clear completed";
+  button.classList.add("btnClear");
+  button.addEventListener("click", OnClearCompleted);
+  return button;
 }
 
 function changeItemLeft() {

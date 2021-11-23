@@ -58,6 +58,11 @@ html {
   list-style: none;
 }
 
-.active {
+.activeSortButton {
   background-color: aqua;
+}
+
+.btnClear {
+  display: block;
+  margin: auto;
 }
