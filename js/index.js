@@ -14,6 +14,7 @@ butttonActive.addEventListener("click", handleOnButtonActive);
 buttonCompleted.addEventListener("click", handleOnButtonCompleted);
 buttonSelectAll.addEventListener("click", onSelectAll);
 
+let filtrationState = null;
 render();
 
 function handleOnForm(e) {
@@ -61,6 +62,7 @@ function handleOnButtonAll() {
   butttonActive.classList.remove("activeSortButton");
   buttonCompleted.classList.remove("activeSortButton");
 
+  filtrationState = "all";
   render();
 }
 
@@ -69,9 +71,8 @@ function handleOnButtonActive() {
   butttonActive.classList.add("activeSortButton");
   buttonCompleted.classList.remove("activeSortButton");
 
-  const todos = JSON.parse(localStorage.getItem("todos")) || [];
-  const todosActive = todos.filter(({ completed }) => !completed);
-  render(todosActive);
+  filtrationState = "active";
+  render();
 }
 
 function handleOnButtonCompleted() {
@@ -79,9 +80,8 @@ function handleOnButtonCompleted() {
   butttonActive.classList.remove("activeSortButton");
   buttonCompleted.classList.add("activeSortButton");
 
-  const todos = JSON.parse(localStorage.getItem("todos")) || [];
-  const todosCompleted = todos.filter(({ completed }) => completed);
-  render(todosCompleted);
+  filtrationState = "completed";
+  render();
 }
 
 let stateButtonSelectAll = false;
@@ -109,9 +109,8 @@ function OnClearCompleted() {
   render();
 }
 
-function render(filteredTodos) {
-  const todos =
-    filteredTodos || JSON.parse(localStorage.getItem("todos")) || [];
+function render() {
+  const todos = getTodos();
 
   list.innerHTML = "";
   const arrElements = todos.map(({ id, todo, completed }) =>
@@ -130,6 +129,35 @@ function render(filteredTodos) {
   } else {
     containerBtnClear.innerHTML = "";
   }
+}
+
+function getTodos() {
+  let todos = JSON.parse(localStorage.getItem("todos")) || [];
+
+  switch (filtrationState) {
+    case "all":
+      return todos;
+
+    case "active":
+      const todosActive = todos.filter(({ completed }) => !completed);
+      return todosActive;
+
+    case "completed":
+      const todosCompleted = todos.filter(({ completed }) => completed);
+      return todosCompleted;
+    default:
+      return todos;
+  }
+
+  // if (filtrationState === "active") {
+  //   const todosActive = todos.filter(({ completed }) => !completed);
+  //   todos = todosActive;
+  // } else if (filtrationState === "completed") {
+  //   const todosCompleted = todos.filter(({ completed }) => completed);
+  //   todos = todosCompleted;
+  // } else {
+  //   todos = JSON.parse(localStorage.getItem("todos")) || [];
+  // }
 }
 
 function createLiElement(id, todo, completed) {
