@@ -4,18 +4,29 @@ const itemLeft = document.querySelector(".itemLeft");
 
 form.addEventListener("submit", handleOnForm);
 
-// const todos = [];
+const todos = [];
 let id = 0;
+
+(() => {
+  const oldTodos = JSON.parse(localStorage.getItem("todos"));
+  if (!oldTodos) return;
+
+  oldTodos.forEach((todo) => todos.push(todo));
+  const arrElements = todos.map(({ id, todo }) => getLiElement(id, todo));
+
+  list.append(...arrElements);
+  changeItemLeft();
+})();
 
 function handleOnForm(e) {
   e.preventDefault();
 
   const todo = e.target.input.value;
   id += 1;
-  // todos.push({ id, todo });
+  todos.push({ id, todo });
+  localStorage.setItem("todos", JSON.stringify(todos));
 
   const li = getLiElement(id, todo);
-
   list.append(li);
 
   changeItemLeft();
@@ -24,10 +35,13 @@ function handleOnForm(e) {
 }
 
 function handleOnClick(e) {
-  const index = e.target.dataset.index;
+  const liIndex = e.target.dataset.index;
 
-  const li = document.querySelector(`li[data-index="${index}"]`);
+  const idx = todos.findIndex((todo) => todo.id === Number(liIndex));
+  todos.splice(idx, 1);
+  localStorage.setItem("todos", JSON.stringify(todos));
 
+  const li = document.querySelector(`li[data-index="${liIndex}"]`);
   list.removeChild(li);
 
   changeItemLeft();
