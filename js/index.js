@@ -1,69 +1,95 @@
 const form = document.querySelector(".form");
 const list = document.querySelector(".list");
 const itemLeft = document.querySelector(".itemLeft");
+const buttonAll = document.getElementById("buttonAll");
+const butttonActive = document.getElementById("butttonActive");
+const buttonCompleted = document.getElementById("buttonCompleted");
 
 form.addEventListener("submit", handleOnForm);
+buttonAll.addEventListener("click", handleOnButtonAll);
+butttonActive.addEventListener("click", handleOnButtonActive);
+buttonCompleted.addEventListener("click", handleOnButtonCompleted);
 
-const todos = [];
-let id = 0;
-
-(() => {
-  const oldTodos = JSON.parse(localStorage.getItem("todos"));
-  if (!oldTodos) return;
-
-  oldTodos.forEach((todo) => todos.push(todo));
-  const arrElements = todos.map(({ id, todo, isActive }) =>
-    getLiElement(id, todo, isActive)
-  );
-
-  id = arrElements.length + 1;
-
-  list.append(...arrElements);
-  changeItemLeft();
-})();
+render();
 
 function handleOnForm(e) {
   e.preventDefault();
 
   const todo = e.target.input.value;
-  if (todo === "") return;
+  if (todo === "" || todo === " ") return;
 
-  id += 1;
-  const isActive = false;
-  todos.push({ id, todo, isActive });
+  const todos = JSON.parse(localStorage.getItem("todos")) || [];
+
+  const id = todos[todos.length - 1].id + 1;
+  todos.push({ id, todo: todo.trim(), isActive: false });
   localStorage.setItem("todos", JSON.stringify(todos));
-
-  const li = getLiElement(id, todo, isActive);
-  list.append(li);
-
-  changeItemLeft();
+  render();
 
   e.currentTarget.reset();
 }
 
-function handleOnClick(e) {
+function handleOnDel(e) {
   const liIndex = e.target.dataset.index;
 
-  const idx = todos.findIndex((todo) => todo.id === Number(liIndex));
-  todos.splice(idx, 1);
-  localStorage.setItem("todos", JSON.stringify(todos));
-
-  const li = document.querySelector(`li[data-index="${liIndex}"]`);
-  list.removeChild(li);
-
-  changeItemLeft();
+  const todos = JSON.parse(localStorage.getItem("todos")) || [];
+  const filteredTodo = todos.filter((todo) => todo.id !== Number(liIndex));
+  localStorage.setItem("todos", JSON.stringify(filteredTodo));
+  render();
 }
 
 function handleOnCheckbox(e) {
   const checkboxIndex = e.target.dataset.index;
+
+  const todos = JSON.parse(localStorage.getItem("todos")) || [];
 
   todos.forEach((todo) => {
     if (todo.id === Number(checkboxIndex)) {
       todo.isActive = !todo.isActive;
     }
   });
-
   localStorage.setItem("todos", JSON.stringify(todos));
+
+  render();
+}
+
+function handleOnButtonAll() {
+  buttonAll.classList.add("active");
+  butttonActive.classList.remove("active");
+  buttonCompleted.classList.remove("active");
+
+  render();
+}
+
+function handleOnButtonActive() {
+  buttonAll.classList.remove("active");
+  butttonActive.classList.add("active");
+  buttonCompleted.classList.remove("active");
+
+  const todos = JSON.parse(localStorage.getItem("todos")) || [];
+  const todosActive = todos.filter(({ isActive }) => !isActive);
+  render(todosActive);
+}
+
+function handleOnButtonCompleted() {
+  buttonAll.classList.remove("active");
+  butttonActive.classList.remove("active");
+  buttonCompleted.classList.add("active");
+
+  const todos = JSON.parse(localStorage.getItem("todos")) || [];
+  const todosCompleted = todos.filter(({ isActive }) => isActive);
+  render(todosCompleted);
+}
+
+function render(filteredTodos) {
+  const todos =
+    filteredTodos || JSON.parse(localStorage.getItem("todos")) || [];
+
+  list.innerHTML = "";
+  const arrElements = todos.map(({ id, todo, isActive }) =>
+    getLiElement(id, todo, isActive)
+  );
+  list.append(...arrElements);
+  changeItemLeft();
 }
 
 function getLiElement(id, todo, isActive) {
@@ -75,7 +101,7 @@ function getLiElement(id, todo, isActive) {
   const button = document.createElement("button");
   button.textContent = "del";
   button.dataset.index = id;
-  button.addEventListener("click", handleOnClick);
+  button.addEventListener("click", handleOnDel);
 
   const checkbox = document.createElement("input");
   checkbox.classList.add("checkbox");
@@ -91,6 +117,8 @@ function getLiElement(id, todo, isActive) {
 }
 
 function changeItemLeft() {
-  const allLiElements = document.querySelectorAll("li[data-index]");
-  itemLeft.textContent = `item left: ${allLiElements.length}`;
+  const todos = JSON.parse(localStorage.getItem("todos")) || [];
+  const activeElements = todos.filter(({ isActive }) => !isActive).length;
+
+  itemLeft.textContent = `item left: ${activeElements}`;
 }

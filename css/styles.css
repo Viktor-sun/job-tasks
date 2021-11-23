@@ -48,3 +48,16 @@ html {
   font-size: 30px;
   list-style: none;
 }
+
+.sortButtonList {
+  margin: 0;
+  padding: 0;
+  display: flex;
+  justify-content: end;
+
+  list-style: none;
+}
+
+.active {
+  background-color: aqua;
+}
