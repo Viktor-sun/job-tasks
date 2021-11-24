@@ -6,15 +6,14 @@ const butttonActive = document.getElementById("butttonActive");
 const buttonCompleted = document.getElementById("buttonCompleted");
 const buttonSelectAll = document.querySelector(".btnSelectAll");
 const buttonClear = document.querySelector(".btnClear");
-const containerBtnClear = document.querySelector(".containerBtn");
 
 form.addEventListener("submit", handleOnForm);
 buttonAll.addEventListener("click", handleOnButtonAll);
 butttonActive.addEventListener("click", handleOnButtonActive);
 buttonCompleted.addEventListener("click", handleOnButtonCompleted);
 buttonSelectAll.addEventListener("click", onSelectAll);
+buttonClear.addEventListener("click", OnClearCompleted);
 
-let filtrationState = null;
 render();
 
 function handleOnForm(e) {
@@ -58,29 +57,17 @@ function handleOnCheckbox(e) {
 }
 
 function handleOnButtonAll() {
-  buttonAll.classList.add("activeSortButton");
-  butttonActive.classList.remove("activeSortButton");
-  buttonCompleted.classList.remove("activeSortButton");
-
-  filtrationState = "all";
+  localStorage.setItem("filtrationState", "all");
   render();
 }
 
 function handleOnButtonActive() {
-  buttonAll.classList.remove("activeSortButton");
-  butttonActive.classList.add("activeSortButton");
-  buttonCompleted.classList.remove("activeSortButton");
-
-  filtrationState = "active";
+  localStorage.setItem("filtrationState", "active");
   render();
 }
 
 function handleOnButtonCompleted() {
-  buttonAll.classList.remove("activeSortButton");
-  butttonActive.classList.remove("activeSortButton");
-  buttonCompleted.classList.add("activeSortButton");
-
-  filtrationState = "completed";
+  localStorage.setItem("filtrationState", "completed");
   render();
 }
 
@@ -90,10 +77,12 @@ function onSelectAll() {
   const todos = JSON.parse(localStorage.getItem("todos")) || [];
 
   if (stateButtonSelectAll) {
-    todos.forEach((todo) => (todo.completed = false));
+    todos.map((todo) => {
+      todo.completed = false;
+    });
     stateButtonSelectAll = false;
   } else {
-    todos.forEach((todo) => (todo.completed = true));
+    todos.map((todo) => (todo.completed = true));
     stateButtonSelectAll = true;
   }
 
@@ -120,44 +109,46 @@ function render() {
   changeItemLeft();
 
   const hasCompletedTodo = todos.some((todo) => todo.completed);
-  const btnClear = createButton();
-  if (hasCompletedTodo) {
-    const hasBtn = containerBtnClear.querySelector(".btnClear");
-    if (hasBtn) return;
 
-    containerBtnClear.insertAdjacentElement("beforeend", btnClear);
+  if (hasCompletedTodo) {
+    buttonClear.classList.remove("isHidden");
   } else {
-    containerBtnClear.innerHTML = "";
+    buttonClear.classList.add("isHidden");
   }
 }
 
 function getTodos() {
   let todos = JSON.parse(localStorage.getItem("todos")) || [];
+  const filtrationState = localStorage.getItem("filtrationState");
 
   switch (filtrationState) {
     case "all":
+      buttonAll.classList.add("activeSortButton");
+      butttonActive.classList.remove("activeSortButton");
+      buttonCompleted.classList.remove("activeSortButton");
       return todos;
 
     case "active":
+      buttonAll.classList.remove("activeSortButton");
+      butttonActive.classList.add("activeSortButton");
+      buttonCompleted.classList.remove("activeSortButton");
+
       const todosActive = todos.filter(({ completed }) => !completed);
       return todosActive;
 
     case "completed":
+      buttonAll.classList.remove("activeSortButton");
+      butttonActive.classList.remove("activeSortButton");
+      buttonCompleted.classList.add("activeSortButton");
+
       const todosCompleted = todos.filter(({ completed }) => completed);
       return todosCompleted;
     default:
+      buttonAll.classList.add("activeSortButton");
+      butttonActive.classList.remove("activeSortButton");
+      buttonCompleted.classList.remove("activeSortButton");
       return todos;
   }
-
-  // if (filtrationState === "active") {
-  //   const todosActive = todos.filter(({ completed }) => !completed);
-  //   todos = todosActive;
-  // } else if (filtrationState === "completed") {
-  //   const todosCompleted = todos.filter(({ completed }) => completed);
-  //   todos = todosCompleted;
-  // } else {
-  //   todos = JSON.parse(localStorage.getItem("todos")) || [];
-  // }
 }
 
 function createLiElement(id, todo, completed) {
@@ -182,14 +173,6 @@ function createLiElement(id, todo, completed) {
   li.appendChild(button);
 
   return li;
-}
-
-function createButton() {
-  const button = document.createElement("button");
-  button.textContent = "Clear completed";
-  button.classList.add("btnClear");
-  button.addEventListener("click", OnClearCompleted);
-  return button;
 }
 
 function changeItemLeft() {
