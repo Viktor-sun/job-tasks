@@ -12,20 +12,20 @@ buttonAll.addEventListener("click", handleOnButtonAll);
 butttonActive.addEventListener("click", handleOnButtonActive);
 buttonCompleted.addEventListener("click", handleOnButtonCompleted);
 buttonSelectAll.addEventListener("click", onSelectAll);
-buttonClear.addEventListener("click", OnClearCompleted);
+buttonClear.addEventListener("click", onClearCompleted);
 
 render();
 
 function handleOnForm(e) {
   e.preventDefault();
 
-  const todo = e.target.input.value;
-  if (todo === "" || todo === " ") return;
+  const todo = e.target.input.value.trim();
+  if (todo === "") return;
 
   const todos = JSON.parse(localStorage.getItem("todos")) || [];
 
   const id = todos[todos.length - 1]?.id + 1 || 0;
-  todos.push({ id, todo: todo.trim(), completed: false });
+  todos.push({ id, todo: todo, completed: false });
   localStorage.setItem("todos", JSON.stringify(todos));
   render();
 
@@ -71,30 +71,30 @@ function handleOnButtonCompleted() {
   render();
 }
 
-let stateButtonSelectAll = false;
-
 function onSelectAll() {
   const todos = JSON.parse(localStorage.getItem("todos")) || [];
+  const stateButtonSelectAll = localStorage.getItem("stateButtonSelectAll");
 
-  if (stateButtonSelectAll) {
+  if (stateButtonSelectAll === "yes") {
     todos.map((todo) => {
       todo.completed = false;
     });
-    stateButtonSelectAll = false;
+
+    localStorage.setItem("stateButtonSelectAll", "no");
   } else {
     todos.map((todo) => (todo.completed = true));
-    stateButtonSelectAll = true;
+
+    localStorage.setItem("stateButtonSelectAll", "yes");
   }
 
   localStorage.setItem("todos", JSON.stringify(todos));
   render();
 }
 
-function OnClearCompleted() {
+function onClearCompleted() {
   const todos = JSON.parse(localStorage.getItem("todos")) || [];
   const activeTodo = todos.filter((todo) => !todo.completed);
   localStorage.setItem("todos", JSON.stringify(activeTodo));
-
   render();
 }
 
@@ -109,7 +109,6 @@ function render() {
   changeItemLeft();
 
   const hasCompletedTodo = todos.some((todo) => todo.completed);
-
   if (hasCompletedTodo) {
     buttonClear.classList.remove("isHidden");
   } else {
@@ -143,6 +142,7 @@ function getTodos() {
 
       const todosCompleted = todos.filter(({ completed }) => completed);
       return todosCompleted;
+
     default:
       buttonAll.classList.add("activeSortButton");
       butttonActive.classList.remove("activeSortButton");
